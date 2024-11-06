@@ -13,11 +13,13 @@ import com.hazelcast.mapreduce.KeyValueSource;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 
 public class Query1 implements Query {
     private final HazelcastInstance hazelcastInstance;
     private final Job<Long, Ticket> job;
     private List<String> results;
+    private Map<Integer, String> infractions;
 
     public Query1(HazelcastInstance hazelcastInstance) {
         this.hazelcastInstance = hazelcastInstance;
