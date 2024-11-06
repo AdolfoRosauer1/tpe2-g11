@@ -23,6 +23,7 @@ public class Client {
         final String serverAddress = argMap.get(Args.SERVER_ADDRESS.getValue());
         final String selectedQuery = argMap.get(Args.QUERY.getValue());
         final String inPath = argMap.get(Args.IN_PATH.getValue());
+        final String city = argMap.get(Args.CITY.getValue());
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051)
                 .usePlaintext()
@@ -35,9 +36,10 @@ public class Client {
                 case "Query1":
                     // First load data
 
+
                     // Then run query
                     Query query = new Query1(hazelcastInstance);
-                    query.loadFromPath(inPath);
+                    query.loadFromPath(inPath, city);
                     query.run();
                     query.getResults();
             }

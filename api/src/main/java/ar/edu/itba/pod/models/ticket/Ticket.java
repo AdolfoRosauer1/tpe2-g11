@@ -2,7 +2,7 @@ package ar.edu.itba.pod.models.ticket;
 
 import java.time.LocalDate;
 
-public abstract class Ticket {
+public class Ticket {
     final String licensePlate;
     final LocalDate issueDate;
     final Integer infractionCode;
@@ -10,7 +10,7 @@ public abstract class Ticket {
     final String agency;
     final String region;
 
-    protected Ticket(String licensePlate, LocalDate issueDate, Integer infractionCode, Double fineAmount, String agency, String region) {
+    public Ticket(String licensePlate, LocalDate issueDate, Integer infractionCode, Double fineAmount, String agency, String region) {
         this.licensePlate = licensePlate;
         this.issueDate = issueDate;
         this.infractionCode = infractionCode;
