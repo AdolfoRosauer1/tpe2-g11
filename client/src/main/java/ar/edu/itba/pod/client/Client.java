@@ -4,6 +4,7 @@ import ar.edu.itba.pod.client.queries.Query;
 import ar.edu.itba.pod.client.queries.Query1;
 import ar.edu.itba.pod.client.utils.Args;
 import ar.edu.itba.pod.client.utils.Utils;
+import com.hazelcast.client.HazelcastClient;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import org.slf4j.Logger;
@@ -25,26 +26,21 @@ public class Client {
         final String inPath = argMap.get(Args.IN_PATH.getValue());
         final String city = argMap.get(Args.CITY.getValue());
 
-        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051)
-                .usePlaintext()
-                .build();
-
         HazelcastInstance hazelcastInstance = Utils.getHazelcastInstance(serverAddress);
 
         try {
             switch (selectedQuery){
                 case "Query1":
                     // First load data
-
-
                     // Then run query
                     Query query = new Query1(hazelcastInstance);
                     query.loadFromPath(inPath, city);
                     query.run();
-                    query.getResults();
+                    String result = query.getResults();
+                    System.out.println(result);
             }
         } finally {
-            channel.shutdown().awaitTermination(10, TimeUnit.SECONDS);
+            HazelcastClient.shutdownAll();
         }
     }
 }
