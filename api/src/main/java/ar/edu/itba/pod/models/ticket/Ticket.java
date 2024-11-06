@@ -6,11 +6,11 @@ public abstract class Ticket {
     final String licensePlate;
     final LocalDate issueDate;
     final String infractionCode;
-    final double fineAmount;
+    final int fineAmount;
     final String agency;
     final String region;
 
-    protected Ticket(String licensePlate, LocalDate issueDate, String infractionCode, double fineAmount, String agency, String region) {
+    protected Ticket(String licensePlate, LocalDate issueDate, String infractionCode, int fineAmount, String agency, String region) {
         this.licensePlate = licensePlate;
         this.issueDate = issueDate;
         this.infractionCode = infractionCode;
@@ -31,7 +31,7 @@ public abstract class Ticket {
         return infractionCode;
     }
 
-    public double getFineAmount() {
+    public Integer getFineAmount() {
         return fineAmount;
     }
 
