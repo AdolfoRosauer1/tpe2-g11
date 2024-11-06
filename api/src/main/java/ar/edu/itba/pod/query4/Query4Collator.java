@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class Query4Collator implements Collator<Map.Entry<String, Integer[]>, List<String>> {
+public class Query4Collator implements Collator<Map.Entry<String, Double[]>, List<String>> {
 
     private final int n;
 
@@ -19,13 +19,13 @@ public class Query4Collator implements Collator<Map.Entry<String, Integer[]>, Li
         this.n = 1;
     }
     @Override
-    public List<String> collate(Iterable<Map.Entry<String, Integer[]>> iterable) {
+    public List<String> collate(Iterable<Map.Entry<String, Double[]>> iterable) {
         return (StreamSupport.stream(iterable.spliterator(), false)
                 .sorted((e1, e2) -> {
-                    int diff1 = Math.abs(e1.getValue()[1] - e1.getValue()[0]);
-                    int diff2 = Math.abs(e2.getValue()[1] - e2.getValue()[0]);
+                    double diff1 = Math.abs(e1.getValue()[1] - e1.getValue()[0]);
+                    double diff2 = Math.abs(e2.getValue()[1] - e2.getValue()[0]);
 
-                    int compare = Integer.compare(diff2, diff1);
+                    int compare = Double.compare(diff2, diff1);
 
                     if (compare == 0){
                         String infraction1 = e1.getKey().split(";")[0];

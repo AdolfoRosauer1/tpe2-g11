@@ -3,34 +3,34 @@ package ar.edu.itba.pod.query4;
 import com.hazelcast.mapreduce.Combiner;
 import com.hazelcast.mapreduce.CombinerFactory;
 
-public class Query4Combiner implements CombinerFactory<String, Integer, Integer[]> {
+public class Query4Combiner implements CombinerFactory<String, Double, Double[]> {
 
     @Override
-    public Combiner<Integer, Integer[]> newCombiner(String s) {
-        return new Combiner<>() {
-            private Integer lowestFine = null;
+    public Combiner<Double, Double[]> newCombiner(String s) {
+        return new Combiner<Double, Double[]>() {
+            private Double lowestFine = null;
 
-            private Integer highestFine = null;
+            private Double highestFine = null;
 
             @Override
             public void reset() {
-                lowestFine = 0;
-                highestFine = 0;
+                lowestFine = 0d;
+                highestFine = 0d;
             }
 
             @Override
-            public void combine(Integer integer) {
-                if (lowestFine == null || integer < lowestFine) {
-                    lowestFine = integer;
+            public void combine(Double aDouble) {
+                if (lowestFine == null || aDouble < lowestFine) {
+                    lowestFine = aDouble;
                 }
-                if (highestFine == null || integer > highestFine) {
-                    highestFine = integer;
+                if (highestFine == null || aDouble > highestFine) {
+                    highestFine = aDouble;
                 }
             }
 
             @Override
-            public Integer[] finalizeChunk() {
-                return new Integer[]{lowestFine, highestFine};
+            public Double[] finalizeChunk() {
+                return new Double[]{lowestFine, highestFine};
             }
         };
     }

@@ -5,12 +5,12 @@ import java.time.LocalDate;
 public abstract class Ticket {
     final String licensePlate;
     final LocalDate issueDate;
-    final String infractionCode;
-    final int fineAmount;
+    final Integer infractionCode;
+    final Double fineAmount;
     final String agency;
     final String region;
 
-    protected Ticket(String licensePlate, LocalDate issueDate, String infractionCode, int fineAmount, String agency, String region) {
+    protected Ticket(String licensePlate, LocalDate issueDate, Integer infractionCode, Double fineAmount, String agency, String region) {
         this.licensePlate = licensePlate;
         this.issueDate = issueDate;
         this.infractionCode = infractionCode;
@@ -27,11 +27,11 @@ public abstract class Ticket {
         return issueDate;
     }
 
-    public String getInfractionCode() {
+    public Integer getInfractionCode() {
         return infractionCode;
     }
 
-    public Integer getFineAmount() {
+    public Double getFineAmount() {
         return fineAmount;
     }
 

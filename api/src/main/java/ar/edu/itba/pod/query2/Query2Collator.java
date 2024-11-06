@@ -7,10 +7,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-public class Query2Collator implements Collator<Map.Entry<String, Integer>, List<String>> {
+public class Query2Collator implements Collator<Map.Entry<String, Double>, List<String>> {
 
     @Override
-    public List<String> collate(Iterable<Map.Entry<String, Integer>> iterable) {
+    public List<String> collate(Iterable<Map.Entry<String, Double>> iterable) {
         return (StreamSupport.stream(iterable.spliterator(), false)
                 .sorted((e1, e2) -> {
                     String[] parts1 = e1.getKey().split(";");

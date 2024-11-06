@@ -3,26 +3,25 @@ package ar.edu.itba.pod.query2;
 import com.hazelcast.mapreduce.Combiner;
 import com.hazelcast.mapreduce.CombinerFactory;
 
-public class Query2Combiner implements CombinerFactory<String, Integer, Integer> {
+public class Query2Combiner implements CombinerFactory<String, Double, Double> {
 
     @Override
-    public Combiner<Integer, Integer> newCombiner(String s) {
-        return new Combiner<>() {
-            private int sum = 0;
+    public Combiner<Double, Double> newCombiner(String s) {
+        return new Combiner<Double,Double>() {
+            private double sum = 0;
 
             @Override
             public void reset() {
                 sum = 0;
             }
 
-
             @Override
-            public void combine(Integer integer) {
-                sum += integer;
+            public void combine(Double aDouble) {
+                sum += aDouble;
             }
 
             @Override
-            public Integer finalizeChunk() {
+            public Double finalizeChunk() {
                 return sum;
             }
         };

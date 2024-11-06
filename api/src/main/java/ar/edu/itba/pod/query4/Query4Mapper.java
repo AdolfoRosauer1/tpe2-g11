@@ -6,7 +6,7 @@ import com.hazelcast.mapreduce.Mapper;
 
 import java.time.LocalDate;
 
-public class Query4Mapper implements Mapper<Long, Ticket, String, Integer> {
+public class Query4Mapper implements Mapper<Long, Ticket, String, Double> {
 
     private final String agency;
 
@@ -19,7 +19,7 @@ public class Query4Mapper implements Mapper<Long, Ticket, String, Integer> {
     }
 
     @Override
-    public void map(Long aLong, Ticket ticket, Context<String, Integer> context) {
+    public void map(Long aLong, Ticket ticket, Context<String, Double> context) {
         if (agency != null && !ticket.getAgency().equals(agency)) {
             return;
         }
