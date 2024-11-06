@@ -1,14 +1,19 @@
 package ar.edu.itba.pod.client.utils;
 
+import ar.edu.itba.pod.models.ticket.Infraction;
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
 import com.hazelcast.config.GroupConfig;
 import com.hazelcast.core.HazelcastInstance;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  *
@@ -53,8 +58,30 @@ public class Utils {
 
     }
 
-    public static void loadInfractionsFromPath(){
+    public static Map<Integer, String> loadInfractionsFromPath(String path) throws IOException {
+        Map<Integer, String> toReturn = new HashMap<>();
 
+        // infractions.csv headers: code;name
+        try (var lines = Files.lines(Path.of(path))) {
+            lines.skip(1)
+                    .map(line -> line.split(";"))
+                    .forEach(parts -> {
+                        if (parts.length >= 2) {
+                            try {
+                                int code = Integer.parseInt(parts[0].trim());
+                                String name = parts[1].trim();
+                                toReturn.put(code, name);
+                            } catch (NumberFormatException e) {
+                                System.err.println("Invalid code format: " + parts[0]);
+                            }
+                        } else {
+                            System.err.println("Invalid line format: " + String.join(";", parts));
+                        }
+                    });
+        }
+
+        return toReturn;
     }
+
 
 }

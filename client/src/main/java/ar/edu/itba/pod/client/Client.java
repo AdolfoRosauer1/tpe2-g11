@@ -1,5 +1,6 @@
 package ar.edu.itba.pod.client;
 
+import ar.edu.itba.pod.client.queries.Query;
 import ar.edu.itba.pod.client.queries.Query1;
 import ar.edu.itba.pod.client.utils.Args;
 import ar.edu.itba.pod.client.utils.Utils;
@@ -20,7 +21,7 @@ public class Client {
 
         Map<String,String> argMap = Utils.parseArgs(args);
         final String serverAddress = argMap.get(Args.SERVER_ADDRESS.getValue());
-        final String query = argMap.get(Args.QUERY.getValue());
+        final String selectedQuery = argMap.get(Args.QUERY.getValue());
         final String inPath = argMap.get(Args.IN_PATH.getValue());
 
         ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 50051)
@@ -30,15 +31,15 @@ public class Client {
         HazelcastInstance hazelcastInstance = Utils.getHazelcastInstance(serverAddress);
 
         try {
-            switch (query){
+            switch (selectedQuery){
                 case "Query1":
                     // First load data
 
                     // Then run query
-                    Query1 client = new Query1(hazelcastInstance);
-                    client.loadFromPath(inPath);
-                    client.run();
-                    client.getResults();
+                    Query query = new Query1(hazelcastInstance);
+                    query.loadFromPath(inPath);
+                    query.run();
+                    query.getResults();
             }
         } finally {
             channel.shutdown().awaitTermination(10, TimeUnit.SECONDS);
