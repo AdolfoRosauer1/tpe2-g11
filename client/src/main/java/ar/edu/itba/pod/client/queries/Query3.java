@@ -6,23 +6,24 @@ import ar.edu.itba.pod.query1.Query1Collator;
 import ar.edu.itba.pod.query1.Query1Combiner;
 import ar.edu.itba.pod.query1.Query1Mapper;
 import ar.edu.itba.pod.query1.Query1Reducer;
+import ar.edu.itba.pod.query3.Query3Collator;
+import ar.edu.itba.pod.query3.Query3Combiner;
+import ar.edu.itba.pod.query3.Query3Mapper;
+import ar.edu.itba.pod.query3.Query3Reducer;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ICompletableFuture;
-import com.hazelcast.core.IList;
 import com.hazelcast.core.IMap;
 import com.hazelcast.mapreduce.Job;
 import com.hazelcast.mapreduce.JobTracker;
 import com.hazelcast.mapreduce.KeyValueSource;
 
-import java.io.IOException;
-import java.nio.file.NoSuchFileException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
 import static ar.edu.itba.pod.client.Client.logger;
 
-public class Query1 implements Query {
+public class Query3 implements Query {
     private final HazelcastInstance hazelcastInstance;
     private final Job<Long, Ticket> job;
     private List<String> results;
@@ -31,8 +32,8 @@ public class Query1 implements Query {
     private IMap<Long,Ticket> tickets;
     private String city;
 
-    public Query1(HazelcastInstance hazelcastInstance) {
-        logger.info("Creating Query1");
+    public Query3(final HazelcastInstance hazelcastInstance) {
+        logger.info("Creating Query3");
 
         this.hazelcastInstance = hazelcastInstance;
         tickets = hazelcastInstance.getMap("tickets");
@@ -47,55 +48,38 @@ public class Query1 implements Query {
         job = jobTracker.newJob(source);
         logger.info("Job created");
 
-        logger.info("Query1 created");
+        logger.info("Query3 created");
     }
-
-
     @Override
     public void loadFromPath(String path, String city) {
-        logger.info("Query1 loading from " + path, "\t city: " + city);
-        // TODO: Batching sobre la lectura y el upload
-        // load Tickets from path
-        try {
+        try{
             Utils.loadTicketsFromPathAndUpload(path, city, tickets);
             infractions = Utils.loadInfractionsFromPath(path, city);
             agencies = Utils.loadAgenciesFromPath(path, city);
-            logger.info("infractions: {}", infractions);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+        }catch(Exception e){
+            e.printStackTrace();
         }
-        logger.info("Query1 loaded");
+        logger.info("Query3 loaded");
     }
 
     @Override
     public void run() {
-        logger.info("Query1 running");
+        logger.info("Query3 running");
         try{
             ICompletableFuture<List<String>> future = job
-                    .mapper(new Query1Mapper())
-                    .combiner(new Query1Combiner())
-                    .reducer(new Query1Reducer())
-                    .submit(new Query1Collator(infractions));
+                    .mapper(new Query3Mapper())
+                    .combiner(new Query3Combiner())
+                    .reducer(new Query3Reducer())
+                    .submit(new Query3Collator());
             results = future.get();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        logger.info("Query1 completed");
+        logger.info("Query3 completed");
     }
 
     @Override
     public String getResults() {
-        if (results == null) {
-            return null;
-        }
-        logger.info("Getting Query1 results");
-        StringBuilder sb = new StringBuilder();
-        results.forEach(s -> sb.append(s).append("\n"));
-
-        // cleanup
-        tickets.clear();
-        tickets.destroy();
-
-        return sb.toString();
+        return "";
     }
 }

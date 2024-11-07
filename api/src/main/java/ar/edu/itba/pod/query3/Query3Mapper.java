@@ -11,17 +11,17 @@ public class Query3Mapper implements Mapper<Long, Ticket, String, Integer> {
     private final LocalDate from;
     private final LocalDate to;
 
-    Query3Mapper() {
+    public Query3Mapper() {
         this.from = null;
         this.to = null;
     }
 
-    Query3Mapper(LocalDate from, LocalDate to) {
+    public Query3Mapper(LocalDate from, LocalDate to) {
         this.from = from;
         this.to = to;
     }
 
-    Query3Mapper(LocalDate from, boolean isFrom) {
+    public Query3Mapper(LocalDate from, boolean isFrom) {
         if (isFrom) {
             this.from = from;
             this.to = null;
