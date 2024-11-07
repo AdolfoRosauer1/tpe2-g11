@@ -6,6 +6,7 @@ import com.hazelcast.client.config.ClientConfig;
 import com.hazelcast.client.config.ClientNetworkConfig;
 import com.hazelcast.config.GroupConfig;
 import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,9 +18,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
 
 public class Utils {
+
+    private static final int BATCH_SIZE = 1000;
 
     public static Map<String,String> parseArgs(String[] args) {
         Map<String,String> map = new HashMap<>();
@@ -51,10 +56,15 @@ public class Utils {
         return instance;
     }
 
-    public static List<Ticket> loadTicketsFromPath(String city, String path) throws IOException {
-        List<Ticket> toReturn = new ArrayList<>();
+    public static void loadTicketsFromPathAndUpload(String city, String path, IMap<Long, Ticket> distributedMap) throws IOException {
+
+        final AtomicInteger batchCounter = new AtomicInteger(0);
+        Map<Long, Ticket> toLoad = new HashMap<>();
+
+        final AtomicLong counter = new AtomicLong(0);
+
         switch (city) {
-            case "CHI":
+            case "CHI" -> {
                 // Headers ticketsCHI.csv:
                 // issue_date;community_area_name;unit_description;license_plate_number;violation_code;fine_amount
                 try (Stream<String> lines = Files.lines(Paths.get(path))) {
@@ -83,20 +93,29 @@ public class Utils {
                                         Double fineAmount = Double.parseDouble(fineAmountStr);
 
                                         // Create the Ticket object
-                                        Ticket ticket = new Ticket(licensePlate, issueDate, infractionCode, fineAmount,
-                                                agency, region);
-                                        toReturn.add(ticket);
+                                        Ticket ticket = new Ticket(licensePlate, issueDate, infractionCode, fineAmount, agency, region);
+                                        toLoad.put(counter.getAndIncrement(), ticket);
                                     } catch (Exception e) {
                                         System.err.println("Error parsing line: " + String.join(";", parts));
                                     }
                                 } else {
                                     System.err.println("Invalid line format: " + String.join(";", parts));
                                 }
-                            });
-                }
-                break;
 
-            case "NYC":
+                                if (batchCounter.incrementAndGet() >= BATCH_SIZE) {
+                                    distributedMap.putAll(toLoad);
+                                    toLoad.clear();
+                                    batchCounter.set(0);
+                                }
+                            });
+                    if (batchCounter.get() > 0) {
+                        distributedMap.putAll(toLoad);
+                        toLoad.clear();
+                        batchCounter.set(0);
+                    }
+                }
+            }
+            case "NYC" -> {
                 // Headers ticketsNYC.csv:
                 // Plate;Infraction ID;Fine Amount;Issuing Agency;Issue Date;County Name
                 try (Stream<String> lines = Files.lines(Paths.get(path))) {
@@ -127,22 +146,28 @@ public class Utils {
                                         // Create the Ticket object
                                         Ticket ticket = new Ticket(licensePlate, issueDate, infractionCode, fineAmount,
                                                 agency, region);
-                                        toReturn.add(ticket);
+                                        toLoad.put(counter.getAndIncrement(), ticket);
                                     } catch (Exception e) {
                                         System.err.println("Error parsing line: " + String.join(";", parts));
                                     }
                                 } else {
                                     System.err.println("Invalid line format: " + String.join(";", parts));
                                 }
+                                if (batchCounter.incrementAndGet() >= BATCH_SIZE) {
+                                    distributedMap.putAll(toLoad);
+                                    toLoad.clear();
+                                    batchCounter.set(0);
+                                }
                             });
+                    if (batchCounter.get() > 0) {
+                        distributedMap.putAll(toLoad);
+                        toLoad.clear();
+                        batchCounter.set(0);
+                    }
                 }
-                break;
-
-            default:
-                System.err.println("Invalid city code.");
+            }
+            default -> System.err.println("Invalid city code.");
         }
-
-        return toReturn;
     }
 
     public static List<String> loadAgenciesFromPath(String path, String city) throws IOException{
