@@ -8,4 +8,4 @@ JAVA_OPTS="--add-opens java.management/sun.management=ALL-UNNAMED --add-opens jd
 MAIN_CLASS="ar.edu.itba.pod.server.Server"
 
 
-java  $JAVA_OPTS -cp 'lib/jars/*' $MAIN_CLASS $*
+java  $JAVA_OPTS -Xms8000m -Xmx8000m -cp 'lib/jars/*' $MAIN_CLASS $*
