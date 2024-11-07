@@ -4,8 +4,6 @@ import ar.edu.itba.pod.models.ticket.Ticket;
 import com.hazelcast.mapreduce.Context;
 import com.hazelcast.mapreduce.Mapper;
 
-import java.time.LocalDate;
-
 public class Query4Mapper implements Mapper<Long, Ticket, String, Double> {
 
     private final String agency;

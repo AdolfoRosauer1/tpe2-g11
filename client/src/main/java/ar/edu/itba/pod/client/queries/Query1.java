@@ -15,21 +15,26 @@ import com.hazelcast.mapreduce.JobTracker;
 import com.hazelcast.mapreduce.KeyValueSource;
 
 import java.io.IOException;
+import java.nio.file.NoSuchFileException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+
+import static ar.edu.itba.pod.client.Client.logger;
 
 public class Query1 implements Query {
     private final HazelcastInstance hazelcastInstance;
     private final Job<Long, Ticket> job;
     private List<String> results;
-    private Map<Integer, String> infractions;
+    private Map<String, String> infractions;
     private List<String> agencies;
     private IMap<Long,Ticket> tickets;
 
     private String city;
 
     public Query1(HazelcastInstance hazelcastInstance) {
+        logger.info("Creating Query1");
+
         this.hazelcastInstance = hazelcastInstance;
         tickets = hazelcastInstance.getMap("tickets");
         tickets.clear();
@@ -37,25 +42,29 @@ public class Query1 implements Query {
         JobTracker jobTracker = hazelcastInstance.getJobTracker(String.valueOf(Instant.now().getEpochSecond()));
         KeyValueSource<Long, Ticket> source = KeyValueSource.fromMap(tickets);
         job = jobTracker.newJob(source);
+
+        logger.info("Query1 created");
     }
 
 
     @Override
     public void loadFromPath(String path, String city) {
+        logger.info("Query1 loading from " + path, "\t city: " + city);
         // TODO: Batching sobre la lectura y el upload
         // load Tickets from path
         try {
-            Utils.loadTicketsFromPathAndUpload(city,path, tickets);
-            infractions = Utils.loadInfractionsFromPath(city,path);
-            agencies = Utils.loadAgenciesFromPath(city,path);
-        } catch (IOException e) {
+            Utils.loadTicketsFromPathAndUpload(path, city, tickets);
+            infractions = Utils.loadInfractionsFromPath(path, city);
+            agencies = Utils.loadAgenciesFromPath(path, city);
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
-
+        logger.info("Query1 loaded");
     }
 
     @Override
     public void run() {
+        logger.info("Query1 running");
         try{
             ICompletableFuture<List<String>> future = job
                     .mapper(new Query1Mapper())
@@ -66,10 +75,15 @@ public class Query1 implements Query {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        logger.info("Query1 completed");
     }
 
     @Override
     public String getResults() {
+        if (results == null) {
+            return null;
+        }
+        logger.info("Getting Query1 results");
         StringBuilder sb = new StringBuilder();
         results.forEach(s -> sb.append(s).append("\n"));
         return sb.toString();

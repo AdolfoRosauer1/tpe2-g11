@@ -4,6 +4,7 @@ import com.hazelcast.config.*;
 import com.hazelcast.core.Hazelcast;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import ar.edu.itba.pod.models.ticket.Ticket;
 
 import java.util.Collections;
 

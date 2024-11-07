@@ -10,6 +10,7 @@ import com.hazelcast.core.IMap;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDate;
@@ -21,6 +22,8 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
+
+import static ar.edu.itba.pod.client.Client.logger;
 
 public class Utils {
 
@@ -39,8 +42,8 @@ public class Utils {
 
     public static HazelcastInstance getHazelcastInstance(String addresses){
         GroupConfig groupConfig = new GroupConfig()
-                .setName("g8")
-                .setPassword("g8-pass");
+                .setName("g11")
+                .setPassword("g11-pass");
 
 
         List<String> serverAddresses = List.of(addresses.split(";"));
@@ -56,20 +59,25 @@ public class Utils {
         return instance;
     }
 
-    public static void loadTicketsFromPathAndUpload(String city, String path, IMap<Long, Ticket> distributedMap) throws IOException {
+    public static void loadTicketsFromPathAndUpload( String directory, String city, IMap<Long, Ticket> distributedMap) throws IOException {
+        logger.info("loadingTicketsFromPathAndUpload "+ directory+ "\t" + city);
+        logger.info("Current working directory: " + System.getProperty("user.dir"));
+        Path currentPath = Paths.get(".").toAbsolutePath().normalize();
+        logger.info("Interpreted path for '.': " + currentPath);
 
         final AtomicInteger batchCounter = new AtomicInteger(0);
         Map<Long, Ticket> toLoad = new HashMap<>();
 
         final AtomicLong counter = new AtomicLong(0);
-
+        String path = directory + "/tickets"+city+".csv";
+        final Path ticketsPath = Paths.get(path);
         switch (city) {
             case "CHI" -> {
                 // Headers ticketsCHI.csv:
                 // issue_date;community_area_name;unit_description;license_plate_number;violation_code;fine_amount
-                try (Stream<String> lines = Files.lines(Paths.get(path))) {
+                try (Stream<String> lines = Files.lines(ticketsPath)) {
                     // Define the date format used in the CSV file
-                    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+                    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
                     lines.skip(1) // Skip the header line
                             .map(line -> line.split(";"))
@@ -87,16 +95,16 @@ public class Utils {
                                         LocalDate issueDate = LocalDate.parse(issueDateStr, dateFormatter);
 
                                         // Parse the infraction code
-                                        Integer infractionCode = Integer.parseInt(infractionCodeStr);
+//                                        Integer infractionCode = Integer.parseInt(infractionCodeStr);
 
                                         // Parse the fine amount
                                         Double fineAmount = Double.parseDouble(fineAmountStr);
 
                                         // Create the Ticket object
-                                        Ticket ticket = new Ticket(licensePlate, issueDate, infractionCode, fineAmount, agency, region);
+                                        Ticket ticket = new Ticket(licensePlate, issueDate, infractionCodeStr, fineAmount, agency, region);
                                         toLoad.put(counter.getAndIncrement(), ticket);
                                     } catch (Exception e) {
-                                        System.err.println("Error parsing line: " + String.join(";", parts));
+                                        System.err.println("Error parsing line: " + String.join(";", parts) +"\n"+e.getMessage());
                                     }
                                 } else {
                                     System.err.println("Invalid line format: " + String.join(";", parts));
@@ -118,7 +126,7 @@ public class Utils {
             case "NYC" -> {
                 // Headers ticketsNYC.csv:
                 // Plate;Infraction ID;Fine Amount;Issuing Agency;Issue Date;County Name
-                try (Stream<String> lines = Files.lines(Paths.get(path))) {
+                try (Stream<String> lines = Files.lines(ticketsPath)) {
                     // Define the date format used in the CSV file
                     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -138,13 +146,13 @@ public class Utils {
                                         LocalDate issueDate = LocalDate.parse(issueDateStr, dateFormatter);
 
                                         // Parse the infraction code
-                                        Integer infractionCode = Integer.parseInt(infractionCodeStr);
+//                                        Integer infractionCode = Integer.parseInt(infractionCodeStr);
 
                                         // Parse the fine amount
                                         Double fineAmount = Double.parseDouble(fineAmountStr);
 
                                         // Create the Ticket object
-                                        Ticket ticket = new Ticket(licensePlate, issueDate, infractionCode, fineAmount,
+                                        Ticket ticket = new Ticket(licensePlate, issueDate, infractionCodeStr, fineAmount,
                                                 agency, region);
                                         toLoad.put(counter.getAndIncrement(), ticket);
                                     } catch (Exception e) {
@@ -170,30 +178,32 @@ public class Utils {
         }
     }
 
-    public static List<String> loadAgenciesFromPath(String path, String city) throws IOException{
+    public static List<String> loadAgenciesFromPath(String directory, String city) throws IOException{
         List<String> toReturn = new ArrayList<>();
+        logger.info("LoadingAgenciesFromPath: path {} \t city {}", directory, city);
 
         // infractions.csv headers: code;name
-        try (var lines = Files.lines(Path.of(path + "/agencies" + city + ".csv"))) {
+        try (var lines = Files.lines(Path.of(directory + "/agencies" + city + ".csv"))) {
             lines.skip(1)
                     .forEach(toReturn::add);
         }
-
+        logger.info("Successfully loaded agencies");
         return toReturn;
     }
 
 
-    public static Map<Integer, String> loadInfractionsFromPath(String path, String city) throws IOException {
-        Map<Integer, String> toReturn = new HashMap<>();
+    public static Map<String, String> loadInfractionsFromPath(String directory, String city) throws IOException {
+        Map<String, String> toReturn = new HashMap<>();
+        logger.info("loadInfractionsFromPath: directory {}\t city {}", directory, city);
 
         // infractions.csv headers: code;name
-        try (var lines = Files.lines(Path.of(path + "/infractions" + city + ".csv"))) {
+        try (var lines = Files.lines(Path.of(directory + "/infractions" + city + ".csv"))) {
             lines.skip(1)
                     .map(line -> line.split(";"))
                     .forEach(parts -> {
                         if (parts.length >= 2) {
                             try {
-                                int code = Integer.parseInt(parts[0].trim());
+                                String code = parts[0].trim();
                                 String name = parts[1].trim();
                                 toReturn.put(code, name);
                             } catch (NumberFormatException e) {
@@ -204,7 +214,7 @@ public class Utils {
                         }
                     });
         }
-
+        logger.info("successfully loaded infractions from directory");
         return toReturn;
     }
 

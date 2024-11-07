@@ -5,7 +5,6 @@ import com.hazelcast.mapreduce.Context;
 import com.hazelcast.mapreduce.Mapper;
 
 import java.time.LocalDate;
-import java.util.Date;
 
 public class Query3Mapper implements Mapper<Long, Ticket, String, Integer> {
 

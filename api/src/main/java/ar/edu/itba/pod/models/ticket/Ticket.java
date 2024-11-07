@@ -1,16 +1,17 @@
 package ar.edu.itba.pod.models.ticket;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Ticket {
-    final String licensePlate;
-    final LocalDate issueDate;
-    final Integer infractionCode;
-    final Double fineAmount;
-    final String agency;
-    final String region;
+public class Ticket implements Serializable {
+    private final String licensePlate;
+    private final LocalDate issueDate;
+    private final String infractionCode;
+    private final Double fineAmount;
+    private final String agency;
+    private final String region;
 
-    public Ticket(String licensePlate, LocalDate issueDate, Integer infractionCode, Double fineAmount, String agency, String region) {
+    public Ticket(String licensePlate, LocalDate issueDate, String infractionCode, Double fineAmount, String agency, String region) {
         this.licensePlate = licensePlate;
         this.issueDate = issueDate;
         this.infractionCode = infractionCode;
@@ -27,7 +28,7 @@ public class Ticket {
         return issueDate;
     }
 
-    public Integer getInfractionCode() {
+    public String getInfractionCode() {
         return infractionCode;
     }
 
