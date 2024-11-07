@@ -24,7 +24,7 @@ public class Server {
         MulticastConfig multicastConfig = new MulticastConfig();
         JoinConfig joinConfig = new JoinConfig().setMulticastConfig(multicastConfig);
         InterfacesConfig interfacesConfig = new InterfacesConfig()
-                .setInterfaces(Collections.singletonList("192.168.1.*"))
+                .setInterfaces(Collections.singletonList("25.*.*.*"))
                 .setEnabled(true);
         NetworkConfig networkConfig = new NetworkConfig()
                 .setInterfaces(interfacesConfig)

@@ -37,11 +37,18 @@ public class Query1 implements Query {
 
         this.hazelcastInstance = hazelcastInstance;
         tickets = hazelcastInstance.getMap("tickets");
+        logger.info("Tickets IMap created");
         tickets.clear();
+        logger.info("Tickets IMap cleared");
 
         JobTracker jobTracker = hazelcastInstance.getJobTracker(String.valueOf(Instant.now().getEpochSecond()));
+        logger.info("JobTracker created");
         KeyValueSource<Long, Ticket> source = KeyValueSource.fromMap(tickets);
+        logger.info("Ticket source created");
         job = jobTracker.newJob(source);
+        logger.info("Job created");
+
+
 
         logger.info("Query1 created");
     }
