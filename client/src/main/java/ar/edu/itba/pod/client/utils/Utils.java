@@ -26,7 +26,7 @@ import static ar.edu.itba.pod.client.Client.logger;
 
 public class Utils {
 
-    private static final int BATCH_SIZE = 1000;
+    private static final int BATCH_SIZE = 25_000;
 
     public static Map<String,String> parseArgs(String[] args) {
         Map<String,String> map = new HashMap<>();

@@ -30,13 +30,22 @@ public class Client {
         try {
             switch (selectedQuery){
                 case "1":
-                    // First load data
-                    // Then run query
+                    long startLoadTime = System.currentTimeMillis();
+                    logger.info("Loading data from path: {}", inPath);
                     Query query = new Query1(hazelcastInstance);
                     query.loadFromPath(inPath, city);
+                    long endLoadTime = System.currentTimeMillis();
+                    logger.info("Data loading completed in {} ms", (endLoadTime - startLoadTime));
+
+                    long startRunTime = System.currentTimeMillis();
+                    logger.info("Running query");
                     query.run();
+                    long endRunTime = System.currentTimeMillis();
+                    logger.info("Query run completed in {} ms", (endRunTime - startRunTime));
+
                     String result = query.getResults();
                     System.out.println(result);
+                    logger.info("TOTAL runtime: {}", (endRunTime - startLoadTime));
             }
         } finally {
 
