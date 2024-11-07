@@ -86,6 +86,11 @@ public class Query1 implements Query {
         logger.info("Getting Query1 results");
         StringBuilder sb = new StringBuilder();
         results.forEach(s -> sb.append(s).append("\n"));
+
+        // cleanup
+        tickets.clear();
+        tickets.destroy();
+
         return sb.toString();
     }
 }
