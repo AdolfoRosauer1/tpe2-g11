@@ -38,17 +38,9 @@ public class Client {
                 case "1":
                     // First load data
                     // Then run query
-                    Query query = new Query1(hazelcastInstance);
-                    query.loadFromPath(inPath, city);
-                    query.run();
-                    String result = query.getResults();
-                    System.out.println(result);
+                    query = new Query1(hazelcastInstance);
                 case "2":
-                    Query query2 = new Query2(hazelcastInstance);
-                    query2.loadFromPath(inPath, city);
-                    query2.run();
-                    String result2 = query2.getResults();
-                    System.out.println(result2);
+                    query = new Query2(hazelcastInstance);
                 case "3":
                     // TODO: argumentos para Query3 por constructor
                     query = new Query3(hazelcastInstance);
