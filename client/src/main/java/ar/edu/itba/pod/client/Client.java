@@ -4,6 +4,7 @@ import ar.edu.itba.pod.client.queries.Query;
 import ar.edu.itba.pod.client.queries.Query1;
 import ar.edu.itba.pod.client.queries.Query3;
 import ar.edu.itba.pod.client.queries.Query4;
+import ar.edu.itba.pod.client.queries.Query2;
 import ar.edu.itba.pod.client.utils.Args;
 import ar.edu.itba.pod.client.utils.Utils;
 import com.hazelcast.client.HazelcastClient;
@@ -33,11 +34,19 @@ public class Client {
             Query query;
             switch (selectedQuery){
                 case "1":
-                    query = new Query1(hazelcastInstance);
-                    break;
-//                case "2":
-////                    query = new Query2(hazelcastInstance);
-//                    break;
+                    // First load data
+                    // Then run query
+                    Query query = new Query1(hazelcastInstance);
+                    query.loadFromPath(inPath, city);
+                    query.run();
+                    String result = query.getResults();
+                    System.out.println(result);
+                case "2":
+                    Query query2 = new Query2(hazelcastInstance);
+                    query2.loadFromPath(inPath, city);
+                    query2.run();
+                    String result2 = query2.getResults();
+                    System.out.println(result2);
                 case "3":
                     // TODO: argumentos para Query3 por constructor
                     query = new Query3(hazelcastInstance);
