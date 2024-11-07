@@ -11,6 +11,8 @@ import com.hazelcast.client.HazelcastClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.hazelcast.core.HazelcastInstance;
+
+import java.io.IOException;
 import java.util.Map;
 
 public class Client {
@@ -73,9 +75,20 @@ public class Client {
             String result = query.getResults();
             System.out.println(result);
             logger.info("TOTAL runtime: {}", (endRunTime - startLoadTime));
+
+            try {
+                String outputPath = argMap.get(Args.OUT_PATH.getValue());
+                Utils.saveResultsToFile(result, selectedQuery, outputPath);
+            } catch (IOException e) {
+                logger.error("Error saving results to file", e);
+            }
+
+            
         } finally {
 
             HazelcastClient.shutdownAll();
         }
     }
+
+
 }

@@ -196,7 +196,8 @@ public class Utils {
         logger.info("loadInfractionsFromPath: directory {}\t city {}", directory, city);
 
         // infractions.csv headers: code;name
-        try (var lines = Files.lines(Path.of(directory + "/infractions" + city + ".csv"))) {
+        String path = directory + "/infractions" + city + ".csv";
+        try (var lines = Files.lines(Path.of(path))) {
             lines.skip(1)
                     .map(line -> line.split(";"))
                     .forEach(parts -> {
@@ -214,8 +215,13 @@ public class Utils {
                     });
         }
         logger.info("successfully loaded infractions from directory");
+        logger.info("Successfully loaded {} infractions", toReturn.size());
         return toReturn;
     }
 
 
+    public static void saveResultsToFile(String result, String selectedQuery, String outputPath) throws IOException {
+        String outputFilePath = outputPath + "/query" + selectedQuery + ".csv";
+        Files.write(Paths.get(outputFilePath), result.getBytes());
+    }
 }

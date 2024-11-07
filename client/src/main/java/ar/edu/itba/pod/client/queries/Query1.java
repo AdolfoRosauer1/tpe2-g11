@@ -8,14 +8,11 @@ import ar.edu.itba.pod.query1.Query1Mapper;
 import ar.edu.itba.pod.query1.Query1Reducer;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ICompletableFuture;
-import com.hazelcast.core.IList;
 import com.hazelcast.core.IMap;
 import com.hazelcast.mapreduce.Job;
 import com.hazelcast.mapreduce.JobTracker;
 import com.hazelcast.mapreduce.KeyValueSource;
 
-import java.io.IOException;
-import java.nio.file.NoSuchFileException;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -60,7 +57,6 @@ public class Query1 implements Query {
             Utils.loadTicketsFromPathAndUpload(path, city, tickets);
             infractions = Utils.loadInfractionsFromPath(path, city);
             agencies = Utils.loadAgenciesFromPath(path, city);
-            logger.info("infractions: {}", infractions);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
