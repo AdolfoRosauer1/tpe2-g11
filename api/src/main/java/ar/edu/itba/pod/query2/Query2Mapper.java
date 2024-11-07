@@ -8,7 +8,7 @@ public class Query2Mapper implements Mapper<Long, Ticket, String, Double> {
 
     @Override
     public void map(Long aLong, Ticket ticket, Context<String, Double> context) {
-        String key = ticket.getAgency() + ";" + ticket.getIssueDate().getYear() + ";" + ticket.getIssueDate().getMonthValue();
-        context.emit(key, ticket.getFineAmount());
+        String key = ticket.agency() + ";" + ticket.issueDate().getYear() + ";" + ticket.issueDate().getMonthValue();
+        context.emit(key, ticket.fineAmount());
     }
 }

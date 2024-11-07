@@ -18,11 +18,11 @@ public class Query4Mapper implements Mapper<Long, Ticket, String, Double> {
 
     @Override
     public void map(Long aLong, Ticket ticket, Context<String, Double> context) {
-        if (agency != null && !ticket.getAgency().equals(agency)) {
+        if (agency != null && !ticket.agency().equals(agency)) {
             return;
         }
         // We use a composite key in case a same infraction can be emitted by different agencies
-        String key = ticket.getInfractionCode() + ";" + ticket.getAgency();
-        context.emit(key, ticket.getFineAmount());
+        String key = ticket.infractionCode() + ";" + ticket.agency();
+        context.emit(key, ticket.fineAmount());
     }
 }

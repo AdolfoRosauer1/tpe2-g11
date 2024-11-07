@@ -33,13 +33,13 @@ public class Query3Mapper implements Mapper<Long, Ticket, String, Integer> {
 
     @Override
     public void map(Long aLong, Ticket ticket, Context<String, Integer> context) {
-        if (from != null && ticket.getIssueDate().isBefore(from)) {
+        if (from != null && ticket.issueDate().isBefore(from)) {
             return;
         }
-        if (to != null && ticket.getIssueDate().isAfter(to)) {
+        if (to != null && ticket.issueDate().isAfter(to)) {
             return;
         }
-        String key = ticket.getRegion() + ";" + ticket.getLicensePlate() + ";" + ticket.getInfractionCode();
+        String key = ticket.region() + ";" + ticket.licensePlate() + ";" + ticket.infractionCode();
         context.emit(key, 1);
     }
 }

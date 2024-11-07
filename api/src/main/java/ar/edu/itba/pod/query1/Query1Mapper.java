@@ -8,7 +8,7 @@ public class Query1Mapper implements Mapper<Long, Ticket, String, Integer> {
 
     @Override
     public void map(Long aLong, Ticket ticket, Context<String, Integer> context) {
-        String key = ticket.getInfractionCode() + ";" + ticket.getAgency();
+        String key = ticket.infractionCode() + ";" + ticket.agency();
         context.emit(key, 1);
     }
 }

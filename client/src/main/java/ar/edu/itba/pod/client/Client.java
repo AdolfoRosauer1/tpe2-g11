@@ -27,7 +27,7 @@ public class Client {
         final String selectedQuery = argMap.get(Args.QUERY.getValue());
         final String inPath = argMap.get(Args.IN_PATH.getValue());
         final String city = argMap.get(Args.CITY.getValue());
-
+        
         HazelcastInstance hazelcastInstance = Utils.getHazelcastInstance(serverAddress);
 
         logger.info("Args {}", argMap);
