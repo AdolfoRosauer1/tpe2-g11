@@ -3,6 +3,8 @@
 PATH_TO_CODE_BASE=`pwd`
 
 #JAVA_OPTS="-Djava.rmi.server.codebase=file://$PATH_TO_CODE_BASE/lib/jars/rmi-params-client-1.0-SNAPSHOT.jar"
+JAVA_OPTS=" -Xmx12G"
+
 
 MAIN_CLASS="ar.edu.itba.pod.client.Client"
 
