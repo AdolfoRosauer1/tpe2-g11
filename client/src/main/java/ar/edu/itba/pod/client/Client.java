@@ -39,8 +39,10 @@ public class Client {
                     // First load data
                     // Then run query
                     query = new Query1(hazelcastInstance);
+                    break;
                 case "2":
                     query = new Query2(hazelcastInstance);
+                    break;
                 case "3":
                     // TODO: argumentos para Query3 por constructor
                     query = new Query3(hazelcastInstance);
