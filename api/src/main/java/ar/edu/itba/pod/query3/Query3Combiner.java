@@ -3,37 +3,24 @@ package ar.edu.itba.pod.query3;
 import com.hazelcast.mapreduce.Combiner;
 import com.hazelcast.mapreduce.CombinerFactory;
 
-public class Query3Combiner implements CombinerFactory<String, Integer, Boolean> {
-
-    private final int minimumTickets;
-
-    public Query3Combiner(int minimumTickets) {
-        this.minimumTickets = minimumTickets;
-    }
-
-    public Query3Combiner() {
-        this.minimumTickets = 2;
-    }
-
+public class Query3Combiner implements CombinerFactory<String, Boolean, int[]> {
     @Override
-    public Combiner<Integer, Boolean> newCombiner(String s) {
+    public Combiner<Boolean, int[]> newCombiner(String key) {
         return new Combiner<>() {
-            private double sum = 0;
+            private int reincidentCount = 0;
+            private int totalCount = 0;
 
             @Override
-            public void reset() {
-                sum = 0;
+            public void combine(Boolean isReincident) {
+                if (isReincident) {
+                    reincidentCount++;
+                }
+                totalCount++;
             }
 
-
             @Override
-            public void combine(Integer integer) {
-                sum += integer;
-            }
-
-            @Override
-            public Boolean finalizeChunk() {
-                return sum >= minimumTickets;
+            public int[] finalizeChunk() {
+                return new int[] { reincidentCount, totalCount };
             }
         };
     }

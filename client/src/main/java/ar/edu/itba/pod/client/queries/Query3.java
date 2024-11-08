@@ -18,24 +18,24 @@ import com.hazelcast.mapreduce.JobTracker;
 import com.hazelcast.mapreduce.KeyValueSource;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
 import static ar.edu.itba.pod.client.Client.logger;
 
 public class Query3 implements Query {
-    private final HazelcastInstance hazelcastInstance;
     private final Job<Long, Ticket> job;
     private List<String> results;
     private Map<String, String> infractions;
-    private List<String> agencies;
     private IMap<Long,Ticket> tickets;
-    private String city;
+    private final LocalDate from;
+    private final LocalDate to;
+    private final int n;
 
-    public Query3(final HazelcastInstance hazelcastInstance) {
+    public Query3(final HazelcastInstance hazelcastInstance, LocalDate from, LocalDate to, int n) {
         logger.info("Creating Query3");
 
-        this.hazelcastInstance = hazelcastInstance;
         tickets = hazelcastInstance.getMap("tickets");
         logger.info("Tickets IMap created");
         tickets.clear();
@@ -48,6 +48,10 @@ public class Query3 implements Query {
         job = jobTracker.newJob(source);
         logger.info("Job created");
 
+        this.from = from;
+        this.to = to;
+        this.n = n;
+
         logger.info("Query3 created");
     }
     @Override
@@ -55,7 +59,6 @@ public class Query3 implements Query {
         try{
             Utils.loadTicketsFromPathAndUpload(path, city, tickets);
             infractions = Utils.loadInfractionsFromPath(path, city);
-            agencies = Utils.loadAgenciesFromPath(path, city);
         }catch(Exception e){
             e.printStackTrace();
         }
@@ -67,7 +70,7 @@ public class Query3 implements Query {
         logger.info("Query3 running");
         try{
             ICompletableFuture<List<String>> future = job
-                    .mapper(new Query3Mapper())
+                    .mapper(new Query3Mapper(from, to,n))
                     .combiner(new Query3Combiner())
                     .reducer(new Query3Reducer())
                     .submit(new Query3Collator());
@@ -80,6 +83,17 @@ public class Query3 implements Query {
 
     @Override
     public String getResults() {
-        return "";
+        if (results == null) {
+            return null;
+        }
+        logger.info("Getting Query3 results");
+        StringBuilder sb = new StringBuilder();
+        results.forEach(s -> sb.append(s).append("\n"));
+
+        // cleanup
+        tickets.clear();
+        tickets.destroy();
+
+        return sb.toString();
     }
 }

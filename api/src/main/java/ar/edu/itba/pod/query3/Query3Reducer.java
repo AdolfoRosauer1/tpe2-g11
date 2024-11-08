@@ -3,25 +3,23 @@ package ar.edu.itba.pod.query3;
 import com.hazelcast.mapreduce.Reducer;
 import com.hazelcast.mapreduce.ReducerFactory;
 
-public class Query3Reducer implements ReducerFactory<String, Boolean, Double> {
+public class Query3Reducer implements ReducerFactory<String, int[], Double> {
     @Override
-    public Reducer<Boolean, Double> newReducer(String s) {
+    public Reducer<int[], Double> newReducer(String region) {
         return new Reducer<>() {
-            private double reincidentSum = 0;
-            private double nonReincidentSum = 0;
+            private int reincidentSum = 0;
+            private int totalSum = 0;
 
             @Override
-            public void reduce(Boolean aBoolean) {
-                if (aBoolean) {
-                    reincidentSum++;
-                } else {
-                    nonReincidentSum++;
-                }
+            public void reduce(int[] counts) {
+                reincidentSum += counts[0];
+                totalSum += counts[1];
             }
 
             @Override
             public Double finalizeReduce() {
-                return reincidentSum / (reincidentSum + nonReincidentSum);
+                if (totalSum == 0) return 0.0;
+                return (double) reincidentSum / totalSum;
             }
         };
     }

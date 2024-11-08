@@ -11,20 +11,15 @@ public class Query3Collator implements Collator<Map.Entry<String, Double>, List<
 
     @Override
     public List<String> collate(Iterable<Map.Entry<String, Double>> iterable) {
-        return (StreamSupport.stream(iterable.spliterator(), false)
+        return StreamSupport.stream(iterable.spliterator(), false)
                 .sorted((e1, e2) -> {
                     int compare = e2.getValue().compareTo(e1.getValue());
-
-                    if (compare == 0){
-                        String region1 = e1.getKey().split(";")[0];
-                        String region2 = e2.getKey().split(";")[0];
-
-                        return region1.compareTo(region2);
+                    if (compare == 0) {
+                        return e1.getKey().compareTo(e2.getKey());
                     }
-
                     return compare;
                 })
-                .map(e -> e.getKey() + ";" + String.format("%.2f", (e.getValue() * 100)) + "%")
-                .collect(Collectors.toList()));
+                .map(e -> e.getKey() + ";" + String.format("%.2f", e.getValue() * 100) + "%")
+                .collect(Collectors.toList());
     }
 }

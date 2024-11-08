@@ -57,8 +57,6 @@ public class Query2 implements Query {
     @Override
     public void loadFromPath(String path, String city) {
         logger.info("query2 loading from " + path, "\t city: " + city);
-        // TODO: Batching sobre la lectura y el upload
-        // load Tickets from path
         try {
             Utils.loadTicketsFromPathAndUpload(path, city, tickets);
             infractions = Utils.loadInfractionsFromPath(path, city);

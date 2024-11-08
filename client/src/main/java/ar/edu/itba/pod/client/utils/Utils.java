@@ -12,7 +12,11 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -60,9 +64,7 @@ public class Utils {
 
     public static void loadTicketsFromPathAndUpload( String directory, String city, IMap<Long, Ticket> distributedMap) throws IOException {
         logger.info("loadingTicketsFromPathAndUpload "+ directory+ "\t" + city);
-        logger.info("Current working directory: " + System.getProperty("user.dir"));
         Path currentPath = Paths.get(".").toAbsolutePath().normalize();
-        logger.info("Interpreted path for '.': " + currentPath);
 
         final AtomicInteger batchCounter = new AtomicInteger(0);
         Map<Long, Ticket> toLoad = new HashMap<>();
@@ -75,10 +77,9 @@ public class Utils {
                 // Headers ticketsCHI.csv:
                 // issue_date;community_area_name;unit_description;license_plate_number;violation_code;fine_amount
                 try (Stream<String> lines = Files.lines(ticketsPath)) {
-                    // Define the date format used in the CSV file
                     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-                    lines.skip(1) // Skip the header line
+                    lines.skip(1)
                             .map(line -> line.split(";"))
                             .forEach(parts -> {
                                 if (parts.length >= 6) {
@@ -90,16 +91,10 @@ public class Utils {
                                         String infractionCodeStr = parts[4].trim(); // violation_code
                                         String fineAmountStr = parts[5].trim(); // fine_amount
 
-                                        // Parse the issue date
                                         LocalDate issueDate = LocalDate.parse(issueDateStr, dateFormatter);
 
-                                        // Parse the infraction code
-//                                        Integer infractionCode = Integer.parseInt(infractionCodeStr);
-
-                                        // Parse the fine amount
                                         Double fineAmount = Double.parseDouble(fineAmountStr);
 
-                                        // Create the Ticket object
                                         Ticket ticket = new Ticket(licensePlate, issueDate, infractionCodeStr, fineAmount, agency, region);
                                         toLoad.put(counter.getAndIncrement(), ticket);
                                     } catch (Exception e) {
@@ -126,10 +121,9 @@ public class Utils {
                 // Headers ticketsNYC.csv:
                 // Plate;Infraction ID;Fine Amount;Issuing Agency;Issue Date;County Name
                 try (Stream<String> lines = Files.lines(ticketsPath)) {
-                    // Define the date format used in the CSV file
                     DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-                    lines.skip(1) // Skip the header line
+                    lines.skip(1)
                             .map(line -> line.split(";"))
                             .forEach(parts -> {
                                 if (parts.length >= 6) {
@@ -141,16 +135,10 @@ public class Utils {
                                         String issueDateStr = parts[4].trim(); // Issue Date
                                         String region = parts[5].trim(); // County Name
 
-                                        // Parse the issue date
                                         LocalDate issueDate = LocalDate.parse(issueDateStr, dateFormatter);
 
-                                        // Parse the infraction code
-//                                        Integer infractionCode = Integer.parseInt(infractionCodeStr);
-
-                                        // Parse the fine amount
                                         Double fineAmount = Double.parseDouble(fineAmountStr);
 
-                                        // Create the Ticket object
                                         Ticket ticket = new Ticket(licensePlate, issueDate, infractionCodeStr, fineAmount,
                                                 agency, region);
                                         toLoad.put(counter.getAndIncrement(), ticket);
@@ -224,4 +212,69 @@ public class Utils {
         String outputFilePath = outputPath + "/query" + selectedQuery + ".csv";
         Files.write(Paths.get(outputFilePath), result.getBytes());
     }
+
+
+public static void savePerformanceResults(String queryNumber, String outputPath, 
+                                        long startLoadTime, long endLoadTime, 
+                                        long startRunTime, long endRunTime) throws IOException {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss:SSSS");
+    LocalDateTime startLoad = LocalDateTime.ofInstant(Instant.ofEpochMilli(startLoadTime), ZoneId.systemDefault());
+    LocalDateTime endLoad = LocalDateTime.ofInstant(Instant.ofEpochMilli(endLoadTime), ZoneId.systemDefault());
+    LocalDateTime startRun = LocalDateTime.ofInstant(Instant.ofEpochMilli(startRunTime), ZoneId.systemDefault());
+    LocalDateTime endRun = LocalDateTime.ofInstant(Instant.ofEpochMilli(endRunTime), ZoneId.systemDefault());
+
+    long loadTime = endLoadTime - startLoadTime;
+    long runTime = endRunTime - startRunTime;
+
+    String content = String.format("%s INFO [main] Client (Client.java:76) - Inicio de la lectura del archivo%n" +
+                                 "%s INFO [main] Client (Client.java:173) - Fin de lectura del archivo%n" +
+                                 "Tiempo de lectura: %d ms%n" +
+                                 "%s INFO [main] Client (Client.java:87) - Inicio del trabajo map/reduce%n" +
+                                 "%s INFO [main] Client (Client.java:166) - Fin del trabajo map/reduce%n" +
+                                 "Tiempo de procesamiento: %d ms%n",
+            formatter.format(startLoad),
+            formatter.format(endLoad),
+            loadTime,
+            formatter.format(startRun),
+            formatter.format(endRun),
+            runTime);
+
+    String outputFilePath = outputPath + "/times" + queryNumber + ".txt";
+    Files.write(Paths.get(outputFilePath), content.getBytes());
+}
+
+public static void savePerformanceResultsCSV(String queryNumber, String inPath, String outputPath,
+                                           long startLoadTime, long endLoadTime,
+                                           long startRunTime, long endRunTime) throws IOException {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss:SSSS");
+    LocalDateTime startLoad = LocalDateTime.ofInstant(Instant.ofEpochMilli(startLoadTime), ZoneId.systemDefault());
+    LocalDateTime endLoad = LocalDateTime.ofInstant(Instant.ofEpochMilli(endLoadTime), ZoneId.systemDefault());
+    LocalDateTime startRun = LocalDateTime.ofInstant(Instant.ofEpochMilli(startRunTime), ZoneId.systemDefault());
+    LocalDateTime endRun = LocalDateTime.ofInstant(Instant.ofEpochMilli(endRunTime), ZoneId.systemDefault());
+
+    long loadTime = endLoadTime - startLoadTime;
+    long runTime = endRunTime - startRunTime;
+
+    String outputFilePath = outputPath + "/performance.csv";
+    Path path = Paths.get(outputFilePath);
+    
+    boolean fileExists = Files.exists(path);
+    String headers = "Query,Input Path, Batch Size,Start Load Time,End Load Time,Load Time (ms),Start Run Time,End Run Time,Run Time (ms)\n";
+    String content = String.format("%s,%s,%d,%s,%s,%d,%s,%s,%d\n",
+            queryNumber,
+            inPath,
+            BATCH_SIZE,
+            formatter.format(startLoad),
+            formatter.format(endLoad),
+            loadTime,
+            formatter.format(startRun),
+            formatter.format(endRun),
+            runTime);
+
+    if (fileExists) {
+        Files.write(path, content.getBytes(), StandardOpenOption.APPEND);
+    } else {
+        Files.write(path, (headers + content).getBytes());
+    }
+}
 }

@@ -20,18 +20,14 @@ import java.util.Map;
 import static ar.edu.itba.pod.client.Client.logger;
 
 public class Query1 implements Query {
-    private final HazelcastInstance hazelcastInstance;
     private final Job<Long, Ticket> job;
     private List<String> results;
     private Map<String, String> infractions;
-    private List<String> agencies;
     private IMap<Long,Ticket> tickets;
-    private String city;
 
     public Query1(HazelcastInstance hazelcastInstance) {
         logger.info("Creating Query1");
 
-        this.hazelcastInstance = hazelcastInstance;
         tickets = hazelcastInstance.getMap("tickets");
         logger.info("Tickets IMap created");
         tickets.clear();
@@ -51,12 +47,9 @@ public class Query1 implements Query {
     @Override
     public void loadFromPath(String path, String city) {
         logger.info("Query1 loading from " + path, "\t city: " + city);
-        // TODO: Batching sobre la lectura y el upload
-        // load Tickets from path
         try {
             Utils.loadTicketsFromPathAndUpload(path, city, tickets);
             infractions = Utils.loadInfractionsFromPath(path, city);
-            agencies = Utils.loadAgenciesFromPath(path, city);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

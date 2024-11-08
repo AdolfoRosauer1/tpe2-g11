@@ -8,11 +8,7 @@ public class Query4Mapper implements Mapper<Long, Ticket, String, Double> {
 
     private final String agency;
 
-    Query4Mapper() {
-        this.agency = null;
-    }
-
-    Query4Mapper(String agency) {
+    public Query4Mapper(String agency) {
         this.agency = agency;
     }
 
@@ -22,7 +18,7 @@ public class Query4Mapper implements Mapper<Long, Ticket, String, Double> {
             return;
         }
         // We use a composite key in case a same infraction can be emitted by different agencies
-        String key = ticket.infractionCode() + ";" + ticket.agency();
+        String key = ticket.infractionCode();
         context.emit(key, ticket.fineAmount());
     }
 }

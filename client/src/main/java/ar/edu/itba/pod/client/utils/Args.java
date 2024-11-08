@@ -9,7 +9,8 @@ public enum Args {
     OUT_PATH("outPath"),
     QUERY("query"),
     SERVER_ADDRESS("addresses"),
-    TO("to");
+    TO("to"),
+    AGENCY("agency");
 
     private final String value;
 

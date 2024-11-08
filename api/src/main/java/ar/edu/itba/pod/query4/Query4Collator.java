@@ -10,13 +10,11 @@ import java.util.stream.StreamSupport;
 public class Query4Collator implements Collator<Map.Entry<String, Double[]>, List<String>> {
 
     private final int n;
+    private final Map<String, String> infractions;
 
-    public Query4Collator(int n) {
+    public Query4Collator(int n, Map<String, String> infractions) {
         this.n = n;
-    }
-
-    public Query4Collator() {
-        this.n = 1;
+        this.infractions = infractions;
     }
     @Override
     public List<String> collate(Iterable<Map.Entry<String, Double[]>> iterable) {
@@ -38,7 +36,7 @@ public class Query4Collator implements Collator<Map.Entry<String, Double[]>, Lis
 
                 })
                 .limit(n)
-                .map(e -> e.getKey().split(";")[0] + ";" + e.getValue()[0] + ";" + e.getValue()[1] + ";" + Math.abs(e.getValue()[1] - e.getValue()[0]))
+                .map(e -> infractions.get(e.getKey().split(";")[0]) + ";" + e.getValue()[0] + ";" + e.getValue()[1] + ";" + Math.abs(e.getValue()[1] - e.getValue()[0]))
                 .collect(Collectors.toList()));
     }
 }
