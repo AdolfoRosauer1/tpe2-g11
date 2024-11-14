@@ -8,22 +8,22 @@ public class Query4Combiner implements CombinerFactory<String, Double, Double[]>
     @Override
     public Combiner<Double, Double[]> newCombiner(String s) {
         return new Combiner<Double, Double[]>() {
-            private Double lowestFine = null;
+            private Double lowestFine = 1000.0;
 
-            private Double highestFine = null;
+            private Double highestFine = 0.0;
 
             @Override
             public void reset() {
-                lowestFine = 0d;
-                highestFine = 0d;
+                lowestFine = 1000.0;
+                highestFine = 0.0;
             }
 
             @Override
             public void combine(Double aDouble) {
-                if (lowestFine == null || aDouble < lowestFine) {
+                if (lowestFine == 1000.0 || aDouble < lowestFine) {
                     lowestFine = aDouble;
                 }
-                if (highestFine == null || aDouble > highestFine) {
+                if (highestFine == 0.0 || aDouble > highestFine) {
                     highestFine = aDouble;
                 }
             }

@@ -8,17 +8,17 @@ public class Query4Reducer implements ReducerFactory<String, Double[], Double[]>
     public Reducer<Double[], Double[]> newReducer(String s) {
         return new Reducer<Double[], Double[]>() {
 
-            private Double lowestFine = null;
+            private Double lowestFine = 1000.0;
 
-            private Double highestFine = null;
+            private Double highestFine = 0.0;
 
 
             @Override
             public void reduce(Double[] doubles) {
-                if (lowestFine == null || doubles[0] < lowestFine) {
+                if (lowestFine == 1000.0 || doubles[0] < lowestFine) {
                     lowestFine = doubles[0];
                 }
-                if (highestFine == null || doubles[1] > highestFine) {
+                if (highestFine == 0.0 || doubles[1] > highestFine) {
                     highestFine = doubles[1];
                 }
             }
